@@ -7,6 +7,10 @@ namespace Shakespeare {
         public static long GuessCount {
             get {return Monkey.guessCount;}
         }
+        private static bool stop = false;
+        public static bool Stop {
+            set {Monkey.stop = value;}
+        }
 
         /*This is a test function to see if the monkey is guessing randomly*/
         public void SayOok() {
@@ -25,15 +29,19 @@ namespace Shakespeare {
             for (int i = 0; i < this.guessLength; i++) {
                 word += alphabet[monkeyBrain.Next(0, alphabet.Length)];
             }
-            Monkey.guessCount++;
+            Interlocked.Increment(ref Monkey.guessCount);
+            /*Note: Increment is a slight performance boost over guessCount++
+              It is an atomic operation, whatever that means lol 
+            */
             return word;
         }
 
         public void GetToWork(string answer) {
-            string guess;
-            do {
-                guess = GuessWord();
-            } while (guess != answer);
+                string guess;
+                do {
+                    guess = GuessWord();
+                } while (guess != answer && Monkey.stop == false);
+                return;
         }
     }
 }
