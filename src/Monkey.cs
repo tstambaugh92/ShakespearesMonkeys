@@ -25,15 +25,15 @@ namespace Shakespeare {
         }
 
         public string GuessWord() {
-            string word = "";
+            char[] word = new char[this.guessLength];
             for (int i = 0; i < this.guessLength; i++) {
-                word += alphabet[monkeyBrain.Next(0, alphabet.Length)];
+                word[i] = alphabet[monkeyBrain.Next(0, alphabet.Length)];
             }
             Interlocked.Increment(ref Monkey.guessCount);
             /*Note: Increment is a slight performance boost over guessCount++
               It is an atomic operation, whatever that means lol 
             */
-            return word;
+            return new string(word);
         }
 
         public void GetToWork(string answer) {
