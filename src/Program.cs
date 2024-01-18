@@ -21,6 +21,9 @@ if (answer == null) {
     System.Console.WriteLine("You didn't enter anything!");
     return;
 }
+else {
+    answer = answer.ToLower();
+}
 
 int phraseLength = answer.Length;
 

@@ -3,6 +3,7 @@ namespace Shakespeare {
         private string alphabet = "abcdefghijklmnopqrstuvwxyz ";
         private int guessLength = 0;
         private Random monkeyBrain;
+        private char[] guess;
         private static long guessCount = 0;
         public static long GuessCount {
             get {return Monkey.guessCount;}
@@ -22,18 +23,18 @@ namespace Shakespeare {
         public Monkey(int guessLength, int seed) {
             this.guessLength = guessLength;
             this.monkeyBrain = new Random(seed);
+            this.guess = new char[guessLength];
         }
 
         public string GuessWord() {
-            char[] word = new char[this.guessLength];
             for (int i = 0; i < this.guessLength; i++) {
-                word[i] = alphabet[monkeyBrain.Next(0, alphabet.Length)];
+                this.guess[i] = alphabet[monkeyBrain.Next(0, alphabet.Length)];
             }
             Interlocked.Increment(ref Monkey.guessCount);
             /*Note: Increment is a slight performance boost over guessCount++
               It is an atomic operation, whatever that means lol 
             */
-            return new string(word);
+            return new string(this.guess);
         }
 
         public void GetToWork(string answer) {
