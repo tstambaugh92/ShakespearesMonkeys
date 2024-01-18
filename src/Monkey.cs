@@ -27,13 +27,28 @@ namespace Shakespeare {
         }
 
         public string GuessWord() {
-            for (int i = 0; i < this.guessLength; i++) {
-                this.guess[i] = alphabet[monkeyBrain.Next(0, alphabet.Length)];
-            }
-            Interlocked.Increment(ref Monkey.guessCount);
-            /*Note: Increment is a slight performance boost over guessCount++
-              It is an atomic operation, whatever that means lol 
+            /*63 random bits to be used in 5 bit chunks. The 64th non-random bit
+              shouldnt matter since 4 bits get tossed to the bit bucket anyway.
             */
+            ulong randomNumber = (ulong)monkeyBrain.Next() << 31 | (uint)monkeyBrain.Next();
+
+            for (int i = 0; i < this.guessLength; i++) {
+                /* Use 5 bits of the random number to select a letter.
+                   5 comes from 2^5 = 32, min number we need to represent 26 letters and a space.
+                   This does add a bias to letters a-e. Measurments should be done latter to see if
+                   the effort of removing bias is an overall performance increase/decrease.
+                */
+                int index = (int)(randomNumber & 0x1F);
+                randomNumber >>= 5;
+
+                if (i % 12 == 11) { /*12 comes from 64/5. Every 12th letter, we need new bits*/
+                    randomNumber = (ulong)monkeyBrain.Next() << 32 | (uint)monkeyBrain.Next();
+                }
+
+                this.guess[i] = alphabet[index % alphabet.Length];
+            }
+
+            Interlocked.Increment(ref Monkey.guessCount);
             return new string(this.guess);
         }
 
