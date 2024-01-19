@@ -42,7 +42,7 @@ namespace Shakespeare {
                 randomNumber >>= 5;
 
                 if (i % 12 == 11) { /*12 comes from 64/5. Every 12th letter, we need new bits*/
-                    randomNumber = (ulong)monkeyBrain.Next() << 32 | (uint)monkeyBrain.Next();
+                    randomNumber = (ulong)monkeyBrain.Next() << 31 | (uint)monkeyBrain.Next();
                 }
 
                 this.guess[i] = alphabet[index % alphabet.Length];
