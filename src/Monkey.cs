@@ -30,19 +30,28 @@ namespace Shakespeare {
             /*63 random bits to be used in 5 bit chunks. The 64th non-random bit
               shouldnt matter since 4 bits get tossed to the bit bucket anyway.
             */
-            ulong randomNumber = (ulong)monkeyBrain.Next() << 31 | (uint)monkeyBrain.Next();
+            ulong randomNumber = 0;
+            int remainingBits = 0;
 
             for (int i = 0; i < this.guessLength; i++) {
                 /* Use 5 bits of the random number to select a letter.
                    5 comes from 2^5 = 32, min number we need to represent 26 letters and a space.
-                   This does add a bias to letters a-e. Measurments should be done latter to see if
-                   the effort of removing bias is an overall performance increase/decrease.
+                   There is a bias removal logic here by sliding the bits over if they're >27
                 */
+                if(remainingBits <= 5) {
+                    randomNumber = (ulong)monkeyBrain.Next() << 31 | (uint)monkeyBrain.Next();
+                    remainingBits = 63;
+                }
+
                 int index = (int)(randomNumber & 0x1F);
                 randomNumber >>= 5;
+                remainingBits -= 5;
 
-                if (i % 12 == 11) { /*12 comes from 64/5. Every 12th letter, we need new bits*/
-                    randomNumber = (ulong)monkeyBrain.Next() << 31 | (uint)monkeyBrain.Next();
+                while(index >= 27) {
+                    /*I slide one bit at a time instead of 5 to remove bias in attempt to make use of the full 63 bits*/
+                    randomNumber >>= 1;
+                    remainingBits--;
+                    index = (int)(randomNumber & 0x1F);
                 }
 
                 this.guess[i] = alphabet[index % alphabet.Length];
